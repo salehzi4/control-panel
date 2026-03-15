@@ -773,7 +773,7 @@ function openAddModal() {
   document.getElementById('fStart').value = today;
   var nextYear = new Date(); nextYear.setFullYear(nextYear.getFullYear()+1);
   document.getElementById('fEnd').value = nextYear.toISOString().split('T')[0];
-  document.getElementById('fNetlifyUrl').value = localStorage.getItem('systemUrl') || DEFAULT_URL;
+  var freshUrl = localStorage.getItem('systemUrl') || DEFAULT_URL; DEFAULT_URL = freshUrl; document.getElementById('fNetlifyUrl').value = freshUrl;
   openModal('schoolModal');
 }
 
