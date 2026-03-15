@@ -185,9 +185,9 @@ tr.row-warn td{background:#FFFBEB;}
       <label class="lp-lbl">كلمة المرور السرية</label>
       <div class="lp-field">
         <span class="material-icons-round">lock</span>
-        <input type="password" class="lp-inp" id="masterPass" placeholder="••••••••" onkeypress="if(event.key==='Enter')adminLogin()">
+        <input type="password" class="lp-inp" id="masterPass" placeholder="••••••••">
       </div>
-      <button class="lp-btn" onclick="adminLogin()">
+      <button class="lp-btn" id="loginBtn">
         <span class="material-icons-round" style="font-size:17px;">login</span> دخول
       </button>
       <div class="lp-err" id="loginErr">كلمة المرور غير صحيحة</div>
@@ -1046,6 +1046,22 @@ document.addEventListener("DOMContentLoaded", function() {
   var inp = document.getElementById("masterPass");
   if(inp) inp.addEventListener("keypress", function(e){ if(e.key==="Enter") adminLogin(); });
 });
+</script>
+<script>
+(function(){
+  function bindLogin(){
+    var btn = document.getElementById('loginBtn');
+    var inp = document.getElementById('masterPass');
+    if(btn) btn.addEventListener('click', function(){ adminLogin(); });
+    if(inp) inp.addEventListener('keypress', function(e){ if(e.key==='Enter') adminLogin(); });
+    if(typeof loadSystemUrl === 'function') loadSystemUrl();
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bindLogin);
+  } else {
+    bindLogin();
+  }
+})();
 </script>
 </body>
 </html>
