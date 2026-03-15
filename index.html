@@ -797,7 +797,6 @@ function openEditModal(id) {
 }
 
 async function saveSchool() {
-  var netlifyUrl = document.getElementById('fNetlifyUrl').value.trim() || DEFAULT_URL;
   var data = {
     school_code:    document.getElementById('fCode').value.trim(),
     name:           document.getElementById('fName').value.trim(),
@@ -807,6 +806,7 @@ async function saveSchool() {
     end_date:       document.getElementById('fEnd').value,
     contact_name:   document.getElementById('fContact').value.trim() || null,
     whatsapp:       document.getElementById('fWhatsapp').value.trim() || null,
+    netlify_url:    document.getElementById('fNetlifyUrl').value.trim() || window.DEFAULT_URL,
     status:         document.getElementById('fStatus').value,
     notes:          document.getElementById('fNotes').value.trim() || null
   };
