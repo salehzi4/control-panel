@@ -585,6 +585,7 @@ tr.row-warn td{background:#FFFBEB;}
 </div>
 
 <script>
+
 // ══ الإعدادات ══
 const SB_URL      = 'https://zcyltgkujiibhadpixnp.supabase.co';
 const SB_SERVICE  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjeWx0Z2t1amlpYmhhZHBpeG5wIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzQzMDkwNCwiZXhwIjoyMDg5MDA2OTA0fQ.tdRvsh8OdleHgoEGLy026q-jdHoFfvQan-Zx6gNfh1c';
@@ -1039,6 +1040,12 @@ function resetSchoolSettings(page) {
     setTimeout(function() { alertEl.innerHTML = ''; }, 4000);
   }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+  loadSystemUrl();
+  var inp = document.getElementById("masterPass");
+  if(inp) inp.addEventListener("keypress", function(e){ if(e.key==="Enter") adminLogin(); });
+});
 </script>
 </body>
 </html>
