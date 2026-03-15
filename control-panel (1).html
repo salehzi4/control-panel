@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة تحكم المطور — نظام المدارس</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<style>
+:root{
+  --em:#0A5C44;--em-dark:#062E22;--em-mid:#0D7A5C;--em-lt:#10A37F;
+  --em-pale:#E6F4F0;--em-ghost:#F2FAF7;
+  --gold:#C9860A;--gold-pale:#FEF3DC;
+  --bg:#F3F6F9;--surface:#fff;--border:#E2E8EF;--border-dk:#C8D5E0;
+  --text:#0E1B26;--text-2:#3D5166;--text-3:#8A9BB0;
+  --danger:#DC2626;--warn:#D97706;--ok:#059669;
+  --r:14px;--r2:10px;--r3:7px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--border-dk);border-radius:3px;}
+
+/* ══ LOGIN ══ */
+.login-pg{display:flex;min-height:100vh;background:linear-gradient(150deg,#062E22 0%,#0A5C44 55%,#0D7A5C 100%);align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.login-pg::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:44px 44px;}
+.lp-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 24px;width:100%;max-width:400px;}
+.lp-icon{width:80px;height:80px;background:rgba(255,255,255,.12);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.22);border-radius:22px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+.lp-icon .material-icons-round{font-size:40px;color:#fff;}
+.lp-title{font-size:24px;font-weight:900;color:#fff;margin-bottom:8px;}
+.lp-sub{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:28px;}
+.lp-card{width:100%;background:rgba(255,255,255,.09);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:28px 26px;box-shadow:0 40px 80px rgba(0,0,0,.26);}
+.lp-lbl{font-size:11px;font-weight:700;color:rgba(255,255,255,.44);letter-spacing:1.2px;text-transform:uppercase;display:block;margin-bottom:8px;text-align:right;}
+.lp-field{position:relative;margin-bottom:16px;}
+.lp-field .material-icons-round{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.3);font-size:18px;pointer-events:none;}
+.lp-inp{width:100%;padding:13px 46px 13px 16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:7px;font-family:inherit;font-size:15px;font-weight:700;color:#fff;letter-spacing:4px;direction:ltr;text-align:center;transition:all .2s;}
+.lp-inp::placeholder{color:rgba(255,255,255,.22);letter-spacing:2px;font-size:13px;}
+.lp-inp:focus{outline:none;border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.15);}
+.lp-btn{width:100%;padding:14px;background:rgba(255,255,255,.94);color:#0A5C44;border:none;border-radius:7px;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.lp-btn:hover{background:#fff;transform:translateY(-1px);box-shadow:0 10px 28px rgba(0,0,0,.2);}
+.lp-err{margin-top:12px;padding:10px;background:rgba(220,38,38,.14);border:1px solid rgba(220,38,38,.28);border-radius:7px;color:#fca5a5;font-size:12px;text-align:center;display:none;}
+
+/* ══ APP ══ */
+#app{display:none;}
+.app-hd{background:var(--em);height:56px;padding:0 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 14px rgba(0,0,0,.14);}
+.app-hd-logo{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;}
+.app-hd-logo .material-icons-round{font-size:18px;color:#fff;}
+.app-hd-title{color:#fff;font-size:15px;font-weight:800;flex:1;}
+.app-hd-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:1px;}
+.hd-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.8);padding:6px 12px;border-radius:7px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .18s;}
+.hd-logout:hover{background:rgba(255,255,255,.2);color:#fff;}
+.main{max-width:1100px;margin:0 auto;padding:24px 20px 80px;}
+
+/* ══ STATS ══ */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px;text-align:center;position:relative;overflow:hidden;}
+.stat-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c,var(--em));}
+.stat-num{font-size:32px;font-weight:900;line-height:1;}
+.stat-lbl{font-size:11px;color:var(--text-3);margin-top:4px;font-weight:600;}
+
+/* ══ TOOLBAR ══ */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.toolbar h2{font-size:16px;font-weight:800;flex:1;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border:none;border-radius:var(--r3);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;}
+.btn-primary{background:var(--em);color:#fff;}.btn-primary:hover{background:var(--em-mid);}
+.btn-outline{background:var(--surface);border:1.5px solid var(--border);color:var(--text-2);}.btn-outline:hover{border-color:var(--em);color:var(--em);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-warn{background:var(--warn);color:#fff;}
+.btn-ok{background:var(--ok);color:#fff;}
+.btn-sm{padding:6px 12px;font-size:11px;}
+.btn-copy{background:var(--em-pale);color:var(--em);border:1px solid var(--em-pale);font-size:11px;padding:5px 10px;}
+.btn-copy:hover{background:var(--em);color:#fff;}
+
+/* ══ SEARCH ══ */
+.search-box{position:relative;flex:1;max-width:280px;}
+.search-box .material-icons-round{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:16px;}
+.search-box input{width:100%;padding:9px 36px 9px 12px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;background:var(--surface);}
+.search-box input:focus{outline:none;border-color:var(--em);}
+
+/* ══ TABLE ══ */
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{background:var(--em);color:#fff;padding:11px 14px;font-weight:700;text-align:right;white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--em-ghost);}
+
+/* ══ BADGES ══ */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
+.badge-ok{background:#F0FDF4;color:var(--ok);border:1px solid #A7F3D0;}
+.badge-warn{background:#FFFBEB;color:var(--warn);border:1px solid #FDE68A;}
+.badge-danger{background:#FEF2F2;color:var(--danger);border:1px solid #FECACA;}
+.badge-off{background:var(--bg);color:var(--text-3);border:1px solid var(--border);}
+.days-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;}
+
+/* ══ LINKS CARD ══ */
+.links-card{background:var(--em-ghost);border:1px solid var(--em-pale);border-radius:var(--r2);padding:14px 16px;margin-top:8px;}
+.links-card-title{font-size:11px;font-weight:800;color:var(--em);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.link-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.link-row:last-child{margin-bottom:0;}
+.link-label{font-size:10px;font-weight:700;color:var(--text-3);min-width:70px;}
+.link-url{flex:1;font-size:10px;color:var(--em);background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:5px 8px;direction:ltr;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:monospace;}
+.copy-btn{background:none;border:1px solid var(--border);border-radius:5px;padding:4px 8px;cursor:pointer;color:var(--text-3);font-size:10px;display:flex;align-items:center;gap:3px;white-space:nowrap;transition:all .15s;}
+.copy-btn:hover{border-color:var(--em);color:var(--em);background:var(--em-pale);}
+.copy-btn.copied{border-color:var(--ok);color:var(--ok);background:#F0FDF4;}
+
+/* ══ MODAL ══ */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--surface);border-radius:var(--r);padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.2);position:relative;}
+.modal h3{font-size:16px;font-weight:800;color:var(--em);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.modal-close{position:absolute;top:14px;left:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-3);}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:5px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:13px;color:var(--text);background:var(--surface);direction:rtl;}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--em);}
+.two-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+
+/* ══ ALERT ══ */
+.alert{padding:12px 16px;border-radius:var(--r3);font-size:12px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.alert-ok{background:#F0FDF4;color:var(--ok);border:1px solid #A7F3D0;}
+.alert-err{background:#FEF2F2;color:var(--danger);border:1px solid #FECACA;}
+
+/* ══ LOADING ══ */
+.overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.8);z-index:9999;align-items:center;justify-content:center;}
+.overlay.show{display:flex;}
+.spin{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--em);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ══ FOOTER ══ */
+.app-ft{text-align:center;padding:10px;background:var(--em-dark);border-top:1px solid rgba(255,255,255,.06);position:fixed;bottom:0;left:0;right:0;z-index:10;}
+.app-ft a{font-size:12px;font-weight:800;color:var(--gold);text-decoration:none;letter-spacing:2px;}
+
+/* ══ ROW COLORS ══ */
+tr.row-danger td{background:#FEF2F2;}
+tr.row-warn td{background:#FFFBEB;}
+
+/* ══ SETTINGS ══ */
+.settings-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:16px;}
+.stnav-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);font-family:inherit;font-size:12px;font-weight:700;color:var(--text-3);cursor:pointer;transition:all .18s;}
+.stnav-btn:hover{border-color:var(--em);color:var(--em);}
+.stnav-btn.active{background:var(--em);color:#fff;border-color:var(--em);}
+.st-panel{display:none;}
+.st-panel.active{display:block;}
+.st-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px;}
+.st-card-title{font-size:13px;font-weight:800;color:var(--em);margin-bottom:16px;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.st-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+.st-section-title{font-size:11px;font-weight:800;color:var(--text-3);letter-spacing:1px;text-transform:uppercase;margin:18px 0 10px;display:flex;align-items:center;gap:8px;}
+.st-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.color-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.color-row label{flex:1;font-size:12px;font-weight:600;color:var(--text-2);}
+.color-row input[type=color]{width:44px;height:34px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:2px;}
+.school-select-bar{background:linear-gradient(135deg,var(--em-pale),#fff);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.school-select-bar label{font-size:13px;font-weight:800;color:var(--em);white-space:nowrap;}
+.school-select-bar select{flex:1;min-width:200px;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:13px;font-weight:700;color:var(--text);background:var(--surface);}
+.st-save-bar{display:flex;gap:10px;padding:16px 0 0;border-top:1px solid var(--border);margin-top:16px;justify-content:flex-end;}
+.main-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0;}
+.main-tab-btn{padding:12px 20px;border:none;background:none;font-family:inherit;font-size:12px;font-weight:700;color:var(--text-3);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .18s;}
+.main-tab-btn.active{color:var(--em);border-bottom-color:var(--em);}
+.main-tab-btn:hover{color:var(--em);background:var(--em-pale);}
+.main-tab-content{display:none;padding-top:16px;}
+.main-tab-content.active{display:block;}
+.key-hint{font-size:10px;font-weight:600;color:var(--text-3);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin-right:4px;font-family:monospace;}
+
+@media(max-width:600px){
+  .stats-bar{grid-template-columns:1fr 1fr;}
+  .two-cols{grid-template-columns:1fr;}
+  table{font-size:11px;}
+  th,td{padding:8px 10px;}
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"><div class="spin"></div></div>
+
+<!-- LOGIN -->
+<div class="login-pg" id="loginPg">
+  <div class="lp-wrap">
+    <div class="lp-icon"><span class="material-icons-round">admin_panel_settings</span></div>
+    <h1 class="lp-title">لوحة تحكم المطور</h1>
+    <p class="lp-sub">نظام إدارة تراخيص المدارس</p>
+    <div class="lp-card">
+      <label class="lp-lbl">كلمة المرور السرية</label>
+      <div class="lp-field">
+        <span class="material-icons-round">lock</span>
+        <input type="password" class="lp-inp" id="masterPass" placeholder="••••••••" onkeypress="if(event.key==='Enter')adminLogin()">
+      </div>
+      <button class="lp-btn" onclick="adminLogin()">
+        <span class="material-icons-round" style="font-size:17px;">login</span> دخول
+      </button>
+      <div class="lp-err" id="loginErr">كلمة المرور غير صحيحة</div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="app-hd">
+    <div class="app-hd-logo"><span class="material-icons-round">admin_panel_settings</span></div>
+    <div style="flex:1">
+      <div class="app-hd-title">لوحة تحكم المطور</div>
+      <div class="app-hd-sub">إدارة تراخيص المدارس</div>
+    </div>
+    <button class="hd-logout" onclick="doLogout()">
+      <span class="material-icons-round" style="font-size:13px;">logout</span> خروج
+    </button>
+  </div>
+
+  <div class="main">
+    <div id="alertArea"></div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-box" style="--c:var(--em)"><div class="stat-num" id="statTotal">—</div><div class="stat-lbl">إجمالي المدارس</div></div>
+      <div class="stat-box" style="--c:var(--ok)"><div class="stat-num" id="statActive">—</div><div class="stat-lbl">نشطة</div></div>
+      <div class="stat-box" style="--c:var(--warn)"><div class="stat-num" id="statExpiring">—</div><div class="stat-lbl">تنتهي خلال 5 أيام</div></div>
+      <div class="stat-box" style="--c:var(--danger)"><div class="stat-num" id="statExpired">—</div><div class="stat-lbl">منتهية / موقوفة</div></div>
+    </div>
+
+    <!-- System URL Setting -->
+    <div style="background:var(--em-ghost);border:1.5px solid var(--em-pale);border-radius:var(--r2);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span class="material-icons-round" style="color:var(--em);font-size:18px;">link</span>
+      <span style="font-size:12px;font-weight:700;color:var(--em);white-space:nowrap;">رابط النظام الافتراضي:</span>
+      <input type="text" id="systemUrlInput" style="flex:1;min-width:260px;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:monospace;font-size:12px;direction:ltr;" placeholder="https://your-site.netlify.app">
+      <button class="btn btn-primary btn-sm" onclick="saveSystemUrl()">
+        <span class="material-icons-round" style="font-size:13px;">save</span> حفظ
+      </button>
+      <span id="systemUrlMsg" style="font-size:11px;color:var(--ok);display:none;">✅ تم الحفظ</span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <h2>🏫 المدارس المسجلة</h2>
+      <div class="search-box">
+        <span class="material-icons-round">search</span>
+        <input type="text" placeholder="ابحث عن مدرسة..." id="searchBox" oninput="renderTable()">
+      </div>
+      <button class="btn btn-primary" onclick="openAddModal()"><span class="material-icons-round" style="font-size:15px;">add</span> إضافة مدرسة</button>
+      <button class="btn btn-outline" onclick="loadSchools()"><span class="material-icons-round" style="font-size:15px;">refresh</span></button>
+    </div>
+
+    <!-- Table -->
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>الكود</th><th>اسم المدرسة</th><th>المسؤول</th><th>الحالة</th><th>الأيام المتبقية</th><th>تاريخ الانتهاء</th><th>الروابط والإجراءات</th></tr>
+        </thead>
+        <tbody id="schoolsBody">
+          <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-3)">جاري التحميل...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Settings Section -->
+    <div style="margin-top:48px;padding-top:32px;border-top:3px solid var(--border);" id="schoolSettingsSection">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <div style="width:4px;height:32px;background:var(--em);border-radius:2px;"></div>
+        <div>
+          <h2 style="font-size:18px;font-weight:900;color:var(--em);">⚙️ إعدادات الهوية البصرية</h2>
+          <p style="font-size:12px;color:var(--text-3);margin-top:2px;">تخصيص مظهر صفحات كل مدرسة بشكل مستقل</p>
+        </div>
+      </div>
+
+      <div class="school-select-bar">
+        <span class="material-icons-round" style="font-size:22px;color:var(--em);">school</span>
+        <label>اختر المدرسة:</label>
+        <select id="settingsSchoolSelect" onchange="loadSchoolSettings()">
+          <option value="">-- اختر كود المدرسة --</option>
+        </select>
+        <div id="settingsSchoolInfo" style="font-size:11px;color:var(--text-3);display:none;">
+          <span class="badge badge-ok" id="settingsSchoolBadge"></span>
+        </div>
+      </div>
+
+      <div id="settingsContent" style="display:none;">
+        <div class="main-tabs">
+          <button class="main-tab-btn active" onclick="switchMainTab('admin',this)"><span class="material-icons-round" style="font-size:14px;vertical-align:middle;">admin_panel_settings</span> صفحة الإدارة</button>
+          <button class="main-tab-btn" onclick="switchMainTab('teacher',this)"><span class="material-icons-round" style="font-size:14px;vertical-align:middle;">school</span> صفحة المعلم</button>
+          <button class="main-tab-btn" onclick="switchMainTab('parent',this)"><span class="material-icons-round" style="font-size:14px;vertical-align:middle;">family_restroom</span> بوابة ولي الأمر</button>
+        </div>
+
+        <!-- Admin Tab -->
+        <div class="main-tab-content active" id="mainTab-admin">
+          <div class="settings-nav" style="margin-top:16px;">
+            <button class="stnav-btn active" onclick="switchStNav('admin','login',this)"><span class="material-icons-round" style="font-size:14px;">login</span> شاشة الدخول</button>
+            <button class="stnav-btn" onclick="switchStNav('admin','header',this)"><span class="material-icons-round" style="font-size:14px;">web_asset</span> الهيدر</button>
+            <button class="stnav-btn" onclick="switchStNav('admin','cards',this)"><span class="material-icons-round" style="font-size:14px;">grid_view</span> البطاقات</button>
+            <button class="stnav-btn" onclick="switchStNav('admin','footer',this)"><span class="material-icons-round" style="font-size:14px;">horizontal_rule</span> الفوتر</button>
+          </div>
+          <div class="st-panel active" id="admin-panel-login">
+            <div class="st-card">
+              <div class="st-card-title"><span class="material-icons-round" style="color:var(--gold);">login</span> شاشة الدخول — صفحة الإدارة</div>
+              <div class="st-grid">
+                <div>
+                  <div class="st-section-title">الخلفية</div>
+                  <div class="color-row"><label>لون 1 (أعلى)</label><input type="color" id="adm_loginBg1" value="#0D2E44"></div>
+                  <div class="color-row"><label>لون 2 (أسفل)</label><input type="color" id="adm_loginBg2" value="#1A5276"></div>
+                  <div class="st-section-title">زر الدخول</div>
+                  <div class="color-row"><label>خلفية الزر</label><input type="color" id="adm_loginBtnBg" value="#f2f2f2"></div>
+                  <div class="color-row"><label>لون النص</label><input type="color" id="adm_loginBtnColor" value="#0D2E44"></div>
+                </div>
+                <div>
+                  <div class="st-section-title">الأيقونة والعنوان</div>
+                  <div class="form-group"><label>رمز Material Icon</label><input type="text" id="adm_loginIcon" value="gavel" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>العنوان الرئيسي</label><input type="text" id="adm_loginTitle" value="سجل المخالفات السلوكية" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>النص الفرعي</label><input type="text" id="adm_loginSubtitle" value="منصة متكاملة لإدارة السلوك المدرسي" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="st-panel" id="admin-panel-header">
+            <div class="st-card">
+              <div class="st-card-title"><span class="material-icons-round" style="color:var(--gold);">web_asset</span> الهيدر — صفحة الإدارة</div>
+              <div class="st-grid">
+                <div>
+                  <div class="form-group"><label>اسم الإدارة التعليمية</label><input type="text" id="adm_headerTitle" value="" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>اسم المدرسة</label><input type="text" id="adm_headerSubTitle" value="" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>نص شريط النظام</label><input type="text" id="adm_headerSysTitle" value="نظام متابعة السلوك والانضباط المدرسي" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="color-row"><label>لون نص شريط النظام</label><input type="color" id="adm_sysTitleColor" value="#ffffff"></div>
+                  <div class="form-group"><label>حجم الخط (px)</label><input type="number" id="adm_sysTitleSize" value="14" min="10" max="28" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>وزن الخط</label><select id="adm_sysTitleWeight" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"><option value="400">عادي</option><option value="600">شبه عريض</option><option value="700">عريض</option><option value="800" selected>أعرض</option><option value="900">أعرض ما يكون</option></select></div>
+                  <div class="form-group"><label>نوع الخط</label><select id="adm_sysTitleFont" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"><option value="IBM Plex Sans Arabic" selected>IBM Plex Sans Arabic</option><option value="Tajawal">Tajawal</option><option value="Cairo">Cairo</option><option value="Noto Kufi Arabic">Noto Kufi Arabic</option><option value="Almarai">Almarai</option></select></div>
+                </div>
+                <div>
+                  <div class="st-section-title">ألوان الهيدر</div>
+                  <div class="color-row"><label>اللون الداكن</label><input type="color" id="adm_headerBg1" value="#0D2E44"></div>
+                  <div class="color-row"><label>اللون الفاتح</label><input type="color" id="adm_headerBg2" value="#1A5276"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="st-panel" id="admin-panel-cards">
+            <div class="st-card">
+              <div class="st-card-title"><span class="material-icons-round" style="color:var(--gold);">grid_view</span> البطاقات والأدوات</div>
+              <div class="st-grid">
+                <div>
+                  <div class="color-row"><label>خلفية البطاقة</label><input type="color" id="adm_navCardBg" value="#ffffff"></div>
+                  <div class="color-row"><label>لون الحدود</label><input type="color" id="adm_navCardBorder" value="#D5E0EC"></div>
+                  <div class="color-row"><label>لون النص</label><input type="color" id="adm_navCardText" value="#0D1F2D"></div>
+                  <div class="color-row"><label>لون العناوين</label><input type="color" id="adm_sectionLabelColor" value="#2C4055"></div>
+                  <div class="color-row"><label>خلفية الصفحة</label><input type="color" id="adm_pageBg" value="#F0F3F7"></div>
+                  <div class="color-row"><label>خلفية بطاقة الإحصاء</label><input type="color" id="adm_statCardBg" value="#ffffff"></div>
+                  <div class="color-row"><label>لون رقم الإحصاء</label><input type="color" id="adm_statCardNumColor" value="#0D1F2D"></div>
+                  <div class="color-row"><label>لون تسمية الإحصاء</label><input type="color" id="adm_statCardLblColor" value="#2C4055"></div>
+                </div>
+                <div>
+                  <div class="st-section-title">شريط الأدوات</div>
+                  <div class="color-row"><label>خلفية زر الرئيسية</label><input type="color" id="adm_toolbarHomeBg" value="#ffffff"></div>
+                  <div class="color-row"><label>نص زر الرئيسية</label><input type="color" id="adm_toolbarHomeText" value="#0D1F2D"></div>
+                  <div class="color-row"><label>خلفية زر الطباعة</label><input type="color" id="adm_toolbarPrintBg" value="#1A5276"></div>
+                  <div class="color-row"><label>نص الطباعة</label><input type="color" id="adm_toolbarPrintText" value="#ffffff"></div>
+                  <div class="color-row"><label>خلفية زر PDF</label><input type="color" id="adm_toolbarPdfBg" value="#C0392B"></div>
+                  <div class="color-row"><label>نص PDF</label><input type="color" id="adm_toolbarPdfText" value="#ffffff"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="st-panel" id="admin-panel-footer">
+            <div class="st-card">
+              <div class="st-card-title"><span class="material-icons-round" style="color:var(--gold);">horizontal_rule</span> الفوتر — صفحة الإدارة</div>
+              <div class="st-grid">
+                <div>
+                  <div class="color-row"><label>خلفية الفوتر</label><input type="color" id="adm_footerBg" value="#0D2E44"></div>
+                  <div class="color-row"><label>لون نص الفوتر</label><input type="color" id="adm_footerTextColor" value="#ffffffa0"></div>
+                  <div class="color-row"><label>لون نص المؤلف</label><input type="color" id="adm_footerAuthorColor" value="#C9860A"></div>
+                </div>
+                <div>
+                  <div class="form-group"><label>نص الفوتر</label><input type="text" id="adm_footerText" value="تصميم وتنفيذ وفكرة" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>نص المؤلف</label><input type="text" id="adm_footerAuthor" value="M E H" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>رابط المؤلف</label><input type="text" id="adm_footerLink" value="#" dir="ltr" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;text-align:left;"></div>
+                  <div class="form-group"><label>نص الحقوق</label><input type="text" id="adm_footerCopyright" value="جميع الحقوق محفوظة" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="st-save-bar">
+            <button class="btn btn-outline" onclick="resetSchoolSettings('admin')"><span class="material-icons-round" style="font-size:14px;">restart_alt</span> استعادة</button>
+            <button class="btn btn-primary" onclick="saveSchoolSettings('admin')"><span class="material-icons-round" style="font-size:14px;">save</span> حفظ إعدادات الإدارة</button>
+          </div>
+          <div id="adminSettingsAlert" style="margin-top:8px;"></div>
+        </div>
+
+        <!-- Teacher Tab -->
+        <div class="main-tab-content" id="mainTab-teacher">
+          <div class="settings-nav" style="margin-top:16px;">
+            <button class="stnav-btn active" onclick="switchStNav('teacher','login',this)"><span class="material-icons-round" style="font-size:14px;">login</span> شاشة الدخول</button>
+            <button class="stnav-btn" onclick="switchStNav('teacher','header',this)"><span class="material-icons-round" style="font-size:14px;">web_asset</span> الهيدر</button>
+            <button class="stnav-btn" onclick="switchStNav('teacher','cards',this)"><span class="material-icons-round" style="font-size:14px;">grid_view</span> البطاقات</button>
+            <button class="stnav-btn" onclick="switchStNav('teacher','footer',this)"><span class="material-icons-round" style="font-size:14px;">horizontal_rule</span> الفوتر</button>
+          </div>
+          <div class="st-panel active" id="teacher-panel-login">
+            <div class="st-card">
+              <div class="st-card-title"><span class="material-icons-round" style="color:var(--gold);">login</span> شاشة دخول المعلم</div>
+              <div class="st-grid">
+                <div>
+                  <div class="color-row"><label>لون 1</label><input type="color" id="tch_loginBg1" value="#0D2E44"></div>
+                  <div class="color-row"><label>لون 2</label><input type="color" id="tch_loginBg2" value="#1A5276"></div>
+                  <div class="color-row"><label>خلفية الزر</label><input type="color" id="tch_loginBtnBg" value="#f2f2f2"></div>
+                  <div class="color-row"><label>لون النص</label><input type="color" id="tch_loginBtnColor" value="#0D2E44"></div>
+                </div>
+                <div>
+                  <div class="form-group"><label>رمز Material Icon</label><input type="text" id="tch_loginIcon" value="school" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>العنوان</label><input type="text" id="tch_loginTitle" value="بوابة المعلم" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>النص الفرعي</label><input type="text" id="tch_loginSubtitle" value="أدخل رمز الدخول الخاص بك" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="st-panel" id="teacher-panel-header">
+            <div class="st-card">
+              <div class="st-card-title"><span class="material-icons-round" style="color:var(--gold);">web_asset</span> هيدر صفحة المعلم</div>
+              <div class="st-grid">
+                <div>
+                  <div class="form-group"><label>اسم الإدارة التعليمية</label><input type="text" id="tch_headerTitle" value="" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>اسم المدرسة</label><input type="text" id="tch_headerSubTitle" value="" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>نص شريط النظام</label><input type="text" id="tch_headerSysTitle" value="نظام متابعة السلوك والانضباط المدرسي" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="color-row"><label>لون النص</label><input type="color" id="tch_sysTitleColor" value="#ffffff"></div>
+                  <div class="form-group"><label>حجم الخط</label><input type="number" id="tch_sysTitleSize" value="13" min="10" max="28" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>وزن الخط</label><select id="tch_sysTitleWeight" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"><option value="400">عادي</option><option value="600">شبه عريض</option><option value="700">عريض</option><option value="800" selected>أعرض</option><option value="900">أعرض ما يكون</option></select></div>
+                  <div class="form-group"><label>نوع الخط</label><select id="tch_sysTitleFont" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"><option value="IBM Plex Sans Arabic" selected>IBM Plex Sans Arabic</option><option value="Tajawal">Tajawal</option><option value="Cairo">Cairo</option><option value="Noto Kufi Arabic">Noto Kufi Arabic</option><option value="Almarai">Almarai</option></select></div>
+                </div>
+                <div>
+                  <div class="color-row"><label>اللون الداكن</label><input type="color" id="tch_headerBg1" value="#0D2E44"></div>
+                  <div class="color-row"><label>اللون الفاتح</label><input type="color" id="tch_headerBg2" value="#1A5276"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="st-panel" id="teacher-panel-cards">
+            <div class="st-card">
+              <div class="st-card-title"><span class="material-icons-round" style="color:var(--gold);">grid_view</span> البطاقات والأدوات</div>
+              <div class="st-grid">
+                <div>
+                  <div class="color-row"><label>خلفية بطاقة التنقل</label><input type="color" id="tch_navCardBg" value="#ffffff"></div>
+                  <div class="color-row"><label>لون الحدود</label><input type="color" id="tch_navCardBorder" value="#D5E0EC"></div>
+                  <div class="color-row"><label>لون النص</label><input type="color" id="tch_navCardText" value="#0D1F2D"></div>
+                  <div class="color-row"><label>لون العناوين</label><input type="color" id="tch_sectionLabelColor" value="#2C4055"></div>
+                  <div class="color-row"><label>خلفية بطاقة الإحصاء</label><input type="color" id="tch_statCardBg" value="#ffffff"></div>
+                  <div class="color-row"><label>لون الرقم</label><input type="color" id="tch_statCardNumColor" value="#0D1F2D"></div>
+                  <div class="color-row"><label>لون التسمية</label><input type="color" id="tch_statCardLblColor" value="#2C4055"></div>
+                  <div class="color-row"><label>خلفية الصفحة</label><input type="color" id="tch_pageBg" value="#F0F3F7"></div>
+                </div>
+                <div>
+                  <div class="st-section-title">شريط الأدوات</div>
+                  <div class="color-row"><label>خلفية زر الرئيسية</label><input type="color" id="tch_toolbarHomeBg" value="#ffffff"></div>
+                  <div class="color-row"><label>نص زر الرئيسية</label><input type="color" id="tch_toolbarHomeText" value="#0D1F2D"></div>
+                  <div class="color-row"><label>زر الطباعة</label><input type="color" id="tch_toolbarPrintBg" value="#1A5276"></div>
+                  <div class="color-row"><label>نص الطباعة</label><input type="color" id="tch_toolbarPrintText" value="#ffffff"></div>
+                  <div class="color-row"><label>زر PDF</label><input type="color" id="tch_toolbarPdfBg" value="#C0392B"></div>
+                  <div class="color-row"><label>نص PDF</label><input type="color" id="tch_toolbarPdfText" value="#ffffff"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="st-panel" id="teacher-panel-footer">
+            <div class="st-card">
+              <div class="st-card-title"><span class="material-icons-round" style="color:var(--gold);">horizontal_rule</span> فوتر صفحة المعلم</div>
+              <div class="st-grid">
+                <div>
+                  <div class="color-row"><label>خلفية الفوتر</label><input type="color" id="tch_footerBg" value="#0D2E44"></div>
+                  <div class="color-row"><label>لون نص الفوتر</label><input type="color" id="tch_footerTextColor" value="#ffffffa0"></div>
+                  <div class="color-row"><label>لون المؤلف</label><input type="color" id="tch_footerAuthorColor" value="#C9860A"></div>
+                </div>
+                <div>
+                  <div class="form-group"><label>نص الفوتر</label><input type="text" id="tch_footerText" value="تصميم وتنفيذ وفكرة" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>نص المؤلف</label><input type="text" id="tch_footerAuthor" value="M E H" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>رابط المؤلف</label><input type="text" id="tch_footerLink" value="#" dir="ltr" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;text-align:left;"></div>
+                  <div class="form-group"><label>نص الحقوق</label><input type="text" id="tch_footerCopyright" value="جميع الحقوق محفوظة" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="st-save-bar">
+            <button class="btn btn-outline" onclick="resetSchoolSettings('teacher')"><span class="material-icons-round" style="font-size:14px;">restart_alt</span> استعادة</button>
+            <button class="btn btn-primary" onclick="saveSchoolSettings('teacher')"><span class="material-icons-round" style="font-size:14px;">save</span> حفظ إعدادات المعلم</button>
+          </div>
+          <div id="teacherSettingsAlert" style="margin-top:8px;"></div>
+        </div>
+
+        <!-- Parent Tab -->
+        <div class="main-tab-content" id="mainTab-parent">
+          <div class="settings-nav" style="margin-top:16px;">
+            <button class="stnav-btn active" onclick="switchStNav('parent','login',this)"><span class="material-icons-round" style="font-size:14px;">login</span> شاشة الدخول</button>
+            <button class="stnav-btn" onclick="switchStNav('parent','header',this)"><span class="material-icons-round" style="font-size:14px;">web_asset</span> الهيدر</button>
+          </div>
+          <div class="st-panel active" id="parent-panel-login">
+            <div class="st-card">
+              <div class="st-card-title"><span class="material-icons-round" style="color:var(--gold);">login</span> شاشة دخول ولي الأمر</div>
+              <div class="st-grid">
+                <div>
+                  <div class="color-row"><label>لون 1</label><input type="color" id="par_loginBg1" value="#062E22"></div>
+                  <div class="color-row"><label>لون 2</label><input type="color" id="par_loginBg2" value="#0A5C44"></div>
+                  <div class="color-row"><label>خلفية الزر</label><input type="color" id="par_loginBtnBg" value="#f2f2f2"></div>
+                  <div class="color-row"><label>لون النص</label><input type="color" id="par_loginBtnColor" value="#0A5C44"></div>
+                </div>
+                <div>
+                  <div class="form-group"><label>رمز Material Icon</label><input type="text" id="par_loginIcon" value="family_restroom" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>العنوان</label><input type="text" id="par_loginTitle" value="بوابة ولي الأمر" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>النص الفرعي</label><input type="text" id="par_loginSubtitle" value="أدخل رقمك الوطني لعرض بيانات طفلك" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="st-panel" id="parent-panel-header">
+            <div class="st-card">
+              <div class="st-card-title"><span class="material-icons-round" style="color:var(--gold);">web_asset</span> هيدر بوابة ولي الأمر</div>
+              <div class="st-grid">
+                <div>
+                  <div class="form-group"><label>أيقونة الهيدر</label><input type="text" id="par_headerIcon" value="family_restroom" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>عنوان شريط النظام</label><input type="text" id="par_headerSysTitle" value="نظام متابعة السلوك الانضباطي المدرسي" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="color-row"><label>لون النص</label><input type="color" id="par_sysTitleColor" value="#ffffffa0"></div>
+                  <div class="form-group"><label>حجم الخط</label><input type="number" id="par_sysTitleSize" value="11" min="10" max="28" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"></div>
+                  <div class="form-group"><label>وزن الخط</label><select id="par_sysTitleWeight" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"><option value="400">عادي</option><option value="600">شبه عريض</option><option value="700" selected>عريض</option><option value="800">أعرض</option><option value="900">أعرض ما يكون</option></select></div>
+                  <div class="form-group"><label>نوع الخط</label><select id="par_sysTitleFont" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r3);font-family:inherit;font-size:12px;"><option value="IBM Plex Sans Arabic" selected>IBM Plex Sans Arabic</option><option value="Tajawal">Tajawal</option><option value="Cairo">Cairo</option><option value="Noto Kufi Arabic">Noto Kufi Arabic</option><option value="Almarai">Almarai</option></select></div>
+                  <div class="color-row"><label>خلفية الصفحة</label><input type="color" id="par_pageBg" value="#F3F6F9"></div>
+                </div>
+                <div>
+                  <div class="color-row"><label>اللون الداكن</label><input type="color" id="par_headerBg1" value="#062E22"></div>
+                  <div class="color-row"><label>اللون الفاتح</label><input type="color" id="par_headerBg2" value="#0A5C44"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="st-save-bar">
+            <button class="btn btn-outline" onclick="resetSchoolSettings('parent')"><span class="material-icons-round" style="font-size:14px;">restart_alt</span> استعادة</button>
+            <button class="btn btn-primary" onclick="saveSchoolSettings('parent')"><span class="material-icons-round" style="font-size:14px;">save</span> حفظ إعدادات ولي الأمر</button>
+          </div>
+          <div id="parentSettingsAlert" style="margin-top:8px;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="app-ft"><a href="#">نظام إدارة المدارس — M E H</a></div>
+</div>
+
+<!-- MODAL: إضافة/تعديل -->
+<div class="modal-overlay" id="schoolModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('schoolModal')">✕</button>
+    <h3><span class="material-icons-round">school</span> <span id="modalTitle">إضافة مدرسة جديدة</span></h3>
+    <div id="modalAlert"></div>
+    <div class="two-cols">
+      <div class="form-group"><label>كود المدرسة *</label><input type="text" id="fCode" placeholder="SCH001" style="direction:ltr"></div>
+      <div class="form-group"><label>اسم المدرسة *</label><input type="text" id="fName" placeholder="مدرسة الرياض"></div>
+    </div>
+    <div class="form-group"><label>كلمة مرور الإدارة *</label><input type="text" id="fAdminPass" placeholder="admin123" style="direction:ltr"></div>
+    <div class="two-cols">
+      <div class="form-group"><label>تاريخ البداية *</label><input type="date" id="fStart" style="direction:ltr"></div>
+      <div class="form-group"><label>تاريخ الانتهاء *</label><input type="date" id="fEnd" style="direction:ltr"></div>
+    </div>
+    <div class="two-cols">
+      <div class="form-group"><label>اسم المسؤول</label><input type="text" id="fContact" placeholder="أحمد المدير"></div>
+      <div class="form-group"><label>رقم الواتساب</label><input type="text" id="fWhatsapp" placeholder="0501234567" style="direction:ltr"></div>
+    </div>
+    <div class="form-group">
+      <label>رابط Netlify للمدرسة</label>
+      <input type="text" id="fNetlifyUrl" placeholder="https://profound-froyo-a015fd.netlify.app" style="direction:ltr">
+      <div style="font-size:10px;color:var(--text-3);margin-top:4px;">اتركه فارغاً لاستخدام الرابط الافتراضي</div>
+    </div>
+    <div class="form-group"><label>الحالة</label><select id="fStatus"><option value="active">نشط ✅</option><option value="suspended">موقوف ⛔</option></select></div>
+    <div class="form-group"><label>ملاحظات</label><input type="text" id="fNotes" placeholder="أي ملاحظات..."></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('schoolModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveSchool()"><span class="material-icons-round" style="font-size:15px;">save</span> حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: تأكيد الحذف -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
+    <span class="material-icons-round" style="font-size:48px;color:var(--danger);display:block;margin-bottom:12px;">delete_forever</span>
+    <h3 style="justify-content:center;">تأكيد الحذف</h3>
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:20px;">هل أنت متأكد من حذف مدرسة <strong id="deleteSchoolName"></strong>؟<br>لا يمكن التراجع عن هذا الإجراء.</p>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-outline" onclick="closeModal('deleteModal')">إلغاء</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">حذف نهائياً</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ الإعدادات ══
+const SB_URL      = 'https://zcyltgkujiibhadpixnp.supabase.co';
+const SB_SERVICE  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjeWx0Z2t1amlpYmhhZHBpeG5wIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzQzMDkwNCwiZXhwIjoyMDg5MDA2OTA0fQ.tdRvsh8OdleHgoEGLy026q-jdHoFfvQan-Zx6gNfh1c';
+var DEFAULT_URL = localStorage.getItem('systemUrl') || 'https://profound-froyo-a015fd.netlify.app';
+
+function saveSystemUrl() {
+  var url = document.getElementById('systemUrlInput').value.trim();
+  if (!url) return;
+  url = url.replace(/\/$/, '');
+  DEFAULT_URL = url;
+  localStorage.setItem('systemUrl', url);
+  var msg = document.getElementById('systemUrlMsg');
+  msg.style.display = 'inline';
+  setTimeout(function() { msg.style.display = 'none'; }, 2000);
+}
+
+function loadSystemUrl() {
+  var saved = localStorage.getItem('systemUrl') || 'https://profound-froyo-a015fd.netlify.app';
+  DEFAULT_URL = saved;
+  var inp = document.getElementById('systemUrlInput');
+  if (inp) inp.value = saved;
+}
+const MASTER_PASS = '1081294561';
+
+let allSchools = [], editingId = null, deletingId = null;
+
+// ══ دخول ══
+function adminLogin() {
+  if (document.getElementById('masterPass').value === MASTER_PASS) {
+    document.getElementById('loginPg').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadSystemUrl();
+    loadSchools();
+  } else {
+    var err = document.getElementById('loginErr');
+    err.style.display = 'block';
+    setTimeout(function() { err.style.display = 'none'; }, 3000);
+  }
+}
+function doLogout() {
+  document.getElementById('loginPg').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('masterPass').value = '';
+}
+
+// ══ Supabase ══
+async function sbFetch(path, method, body) {
+  method = method || 'GET';
+  var headers = { 'apikey': SB_SERVICE, 'Authorization': 'Bearer ' + SB_SERVICE, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+  var opts = { method: method, headers: headers };
+  if (body) opts.body = JSON.stringify(body);
+  var res = await fetch(SB_URL + path, opts);
+  var text = await res.text();
+  try { return { ok: res.ok, status: res.status, data: JSON.parse(text) }; }
+  catch(e) { return { ok: res.ok, status: res.status, data: text }; }
+}
+
+// ══ تحميل المدارس ══
+async function loadSchools() {
+  showLoading(true);
+  var r = await sbFetch('/rest/v1/schools?select=*&order=created_at.desc');
+  showLoading(false);
+  if (!r.ok) { showAlert('خطأ في تحميل البيانات', 'err'); return; }
+  allSchools = r.data;
+  updateStats();
+  renderTable();
+}
+
+function updateStats() {
+  var today = new Date(), active = 0, expiring = 0, expired = 0;
+  allSchools.forEach(function(s) {
+    if (s.status === 'suspended') { expired++; return; }
+    var days = Math.ceil((new Date(s.end_date) - today) / 86400000);
+    if (days < 0) expired++;
+    else if (days <= 5) expiring++;
+    else active++;
+  });
+  document.getElementById('statTotal').textContent    = allSchools.length;
+  document.getElementById('statActive').textContent   = active;
+  document.getElementById('statExpiring').textContent = expiring;
+  document.getElementById('statExpired').textContent  = expired;
+  populateSettingsSchoolSelect();
+}
+
+// ══ توليد الروابط ══
+function getLinks(s) {
+  var base = (s.netlify_url || DEFAULT_URL).replace(/\/$/, '');
+  var code = encodeURIComponent(s.school_code);
+  return {
+    admin:   base + '/?school=' + code,
+    teacher: base + '/teacher.html?school=' + code,
+    parent:  base + '/parent.html?school=' + code
+  };
+}
+
+// ══ رسم الجدول ══
+function renderTable() {
+  var q = document.getElementById('searchBox').value.trim().toLowerCase();
+  var filtered = allSchools.filter(function(s) {
+    return s.name.includes(q) || s.school_code.toLowerCase().includes(q) || (s.contact_name||'').includes(q);
+  });
+  var today = new Date();
+  var html = '';
+  if (!filtered.length) {
+    html = '<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-3)">لا توجد مدارس</td></tr>';
+  }
+  filtered.forEach(function(s, i) {
+    var days = Math.ceil((new Date(s.end_date) - today) / 86400000);
+    var isSuspended = s.status === 'suspended';
+    var rowClass = '', badge = '', daysPill = '';
+    if (isSuspended) {
+      rowClass = 'row-danger';
+      badge = '<span class="badge badge-off"><span class="material-icons-round" style="font-size:11px">block</span> موقوف</span>';
+      daysPill = '<span style="color:var(--text-3);font-size:11px">—</span>';
+    } else if (days < 0) {
+      rowClass = 'row-danger';
+      badge = '<span class="badge badge-danger"><span class="material-icons-round" style="font-size:11px">cancel</span> منتهي</span>';
+      daysPill = '<span class="days-pill" style="color:var(--danger)"><span class="material-icons-round" style="font-size:13px">warning</span> منتهي</span>';
+    } else if (days <= 5) {
+      rowClass = 'row-warn';
+      badge = '<span class="badge badge-warn"><span class="material-icons-round" style="font-size:11px">schedule</span> قريب الانتهاء</span>';
+      daysPill = '<span class="days-pill" style="color:var(--warn)"><span class="material-icons-round" style="font-size:13px">hourglass_bottom</span> ' + days + ' أيام</span>';
+    } else {
+      badge = '<span class="badge badge-ok"><span class="material-icons-round" style="font-size:11px">check_circle</span> نشط</span>';
+      daysPill = '<span class="days-pill" style="color:var(--ok)"><span class="material-icons-round" style="font-size:13px">event_available</span> ' + days + ' يوم</span>';
+    }
+
+    var links = getLinks(s);
+    var unifiedLink = (s.netlify_url || DEFAULT_URL).replace(/\/$/, '') + '/?school=' + encodeURIComponent(s.school_code);
+    var linksHtml = '<div class="links-card">' +
+      '<div class="links-card-title"><span class="material-icons-round" style="font-size:13px">link</span> رابط المدرسة الموحد</div>' +
+      makeLink('رابط الدخول', unifiedLink) +
+      '</div>';
+
+    html += '<tr class="' + rowClass + '">' +
+      '<td style="color:var(--text-3);font-size:11px">' + (i+1) + '</td>' +
+      '<td><code style="background:var(--em-pale);color:var(--em);padding:2px 7px;border-radius:5px;font-size:11px">' + s.school_code + '</code></td>' +
+      '<td><strong>' + s.name + '</strong>' + (s.notes ? '<div style="font-size:10px;color:var(--text-3);margin-top:2px">' + s.notes + '</div>' : '') + '</td>' +
+      '<td>' + (s.contact_name||'—') + (s.whatsapp ? '<div style="font-size:10px;color:var(--text-3)">' + s.whatsapp + '</div>' : '') + '</td>' +
+      '<td>' + badge + '</td>' +
+      '<td>' + daysPill + '</td>' +
+      '<td style="font-size:11px;color:var(--text-2)">' + s.end_date + '</td>' +
+      '<td style="min-width:280px">' + linksHtml +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">' +
+        '<button class="btn btn-primary btn-sm" onclick="openEditModal(\'' + s.id + '\')"><span class="material-icons-round" style="font-size:13px">edit</span> تعديل</button>' +
+        (s.status === 'active'
+          ? '<button class="btn btn-warn btn-sm" onclick="toggleStatus(\'' + s.id + '\',\'suspended\')"><span class="material-icons-round" style="font-size:13px">block</span> إيقاف</button>'
+          : '<button class="btn btn-ok btn-sm" onclick="toggleStatus(\'' + s.id + '\',\'active\')"><span class="material-icons-round" style="font-size:13px">check_circle</span> تفعيل</button>') +
+        (s.whatsapp ? '<button class="btn btn-ok btn-sm" onclick="sendWhatsApp(\'' + s.whatsapp + '\',\'' + s.name + '\',' + days + ')"><span class="material-icons-round" style="font-size:13px">chat</span> واتساب</button>' : '') +
+        '<button class="btn btn-danger btn-sm" onclick="openDeleteModal(\'' + s.id + '\',\'' + s.name + '\')"><span class="material-icons-round" style="font-size:13px">delete</span> حذف</button>' +
+        '</div></td>' +
+    '</tr>';
+  });
+  document.getElementById('schoolsBody').innerHTML = html;
+}
+
+function makeLink(label, url) {
+  var id = 'lnk_' + Math.random().toString(36).substr(2,6);
+  return '<div class="link-row">' +
+    '<span class="link-label">' + label + '</span>' +
+    '<span class="link-url" id="' + id + '">' + url + '</span>' +
+    '<button class="copy-btn" onclick="copyLink(\'' + id + '\',this)">' +
+      '<span class="material-icons-round" style="font-size:12px">content_copy</span> نسخ' +
+    '</button>' +
+  '</div>';
+}
+
+function copyLink(id, btn) {
+  var url = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(url).then(function() {
+    btn.classList.add('copied');
+    btn.innerHTML = '<span class="material-icons-round" style="font-size:12px">check</span> تم';
+    setTimeout(function() {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<span class="material-icons-round" style="font-size:12px">content_copy</span> نسخ';
+    }, 2000);
+  });
+}
+
+// ══ Modal ══
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'إضافة مدرسة جديدة';
+  clearModalFields();
+  var today = new Date().toISOString().split('T')[0];
+  document.getElementById('fStart').value = today;
+  var nextYear = new Date(); nextYear.setFullYear(nextYear.getFullYear()+1);
+  document.getElementById('fEnd').value = nextYear.toISOString().split('T')[0];
+  document.getElementById('fNetlifyUrl').value = localStorage.getItem('systemUrl') || DEFAULT_URL;
+  openModal('schoolModal');
+}
+
+function openEditModal(id) {
+  var s = allSchools.find(function(x) { return x.id === id; });
+  if (!s) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'تعديل: ' + s.name;
+  document.getElementById('fCode').value      = s.school_code;
+  document.getElementById('fName').value      = s.name;
+  document.getElementById('fAdminPass').value = s.admin_password;
+  document.getElementById('fStart').value     = s.start_date;
+  document.getElementById('fEnd').value       = s.end_date;
+  document.getElementById('fContact').value   = s.contact_name || '';
+  document.getElementById('fWhatsapp').value  = s.whatsapp || '';
+  document.getElementById('fNetlifyUrl').value= s.netlify_url || DEFAULT_URL;
+  document.getElementById('fStatus').value    = s.status;
+  document.getElementById('fNotes').value     = s.notes || '';
+  openModal('schoolModal');
+}
+
+async function saveSchool() {
+  var netlifyUrl = document.getElementById('fNetlifyUrl').value.trim() || DEFAULT_URL;
+  var data = {
+    school_code:    document.getElementById('fCode').value.trim(),
+    name:           document.getElementById('fName').value.trim(),
+    admin_password: document.getElementById('fAdminPass').value.trim(),
+    sys_password:   'N/A',
+    start_date:     document.getElementById('fStart').value,
+    end_date:       document.getElementById('fEnd').value,
+    contact_name:   document.getElementById('fContact').value.trim() || null,
+    whatsapp:       document.getElementById('fWhatsapp').value.trim() || null,
+    status:         document.getElementById('fStatus').value,
+    notes:          document.getElementById('fNotes').value.trim() || null
+  };
+  if (!data.school_code || !data.name || !data.admin_password || !data.start_date || !data.end_date) {
+    showModalAlert('يرجى تعبئة جميع الحقول الإلزامية *', 'err'); return;
+  }
+  showLoading(true);
+  var r = editingId
+    ? await sbFetch('/rest/v1/schools?id=eq.' + editingId, 'PATCH', data)
+    : await sbFetch('/rest/v1/schools', 'POST', data);
+  showLoading(false);
+  if (r.ok) {
+    closeModal('schoolModal');
+    showAlert(editingId ? 'تم تعديل المدرسة ✅' : 'تمت إضافة المدرسة ✅', 'ok');
+    loadSchools();
+  } else {
+    showModalAlert('خطأ: ' + JSON.stringify(r.data), 'err');
+  }
+}
+
+async function toggleStatus(id, newStatus) {
+  showLoading(true);
+  var r = await sbFetch('/rest/v1/schools?id=eq.' + id, 'PATCH', { status: newStatus });
+  showLoading(false);
+  if (r.ok) { showAlert(newStatus==='suspended'?'تم إيقاف المدرسة ⛔':'تم تفعيل المدرسة ✅','ok'); loadSchools(); }
+  else showAlert('خطأ في تغيير الحالة','err');
+}
+
+function openDeleteModal(id, name) {
+  deletingId = id;
+  document.getElementById('deleteSchoolName').textContent = name;
+  openModal('deleteModal');
+}
+
+async function confirmDelete() {
+  if (!deletingId) return;
+  showLoading(true);
+  var r = await sbFetch('/rest/v1/schools?id=eq.' + deletingId, 'DELETE');
+  showLoading(false);
+  closeModal('deleteModal');
+  if (r.ok) { showAlert('تم حذف المدرسة 🗑️','ok'); loadSchools(); }
+  else showAlert('خطأ في الحذف','err');
+  deletingId = null;
+}
+
+function sendWhatsApp(phone, name, days) {
+  var msg = days < 0
+    ? 'السلام عليكم 👋\n\nانتهى اشتراك *' + name + '* في نظام إدارة السلوك المدرسي.\n\nللتجديد تواصل معنا فوراً ✅'
+    : 'السلام عليكم 👋\n\n🔔 تنبيه: اشتراك *' + name + '* سينتهي بعد *' + days + ' يوم*.\n\nللتجديد تواصل معنا ✅';
+  window.open('https://wa.me/966' + phone.replace(/^0/,'') + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); document.getElementById('modalAlert').innerHTML=''; }
+function showLoading(v) { document.getElementById('overlay').classList.toggle('show', v); }
+function clearModalFields() {
+  ['fCode','fName','fAdminPass','fStart','fEnd','fContact','fWhatsapp','fNotes','fNetlifyUrl'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('fStatus').value = 'active';
+}
+function showAlert(msg, type) {
+  var area = document.getElementById('alertArea');
+  area.innerHTML = '<div class="alert alert-' + (type==='ok'?'ok':'err') + '"><span class="material-icons-round">' + (type==='ok'?'check_circle':'error') + '</span>' + msg + '</div>';
+  setTimeout(function() { area.innerHTML = ''; }, 4000);
+}
+function showModalAlert(msg, type) {
+  document.getElementById('modalAlert').innerHTML = '<div class="alert alert-' + (type==='ok'?'ok':'err') + '" style="margin-bottom:12px"><span class="material-icons-round">' + (type==='ok'?'check_circle':'error') + '</span>' + msg + '</div>';
+}
+
+// ══ إعدادات الهوية البصرية ══
+function switchMainTab(tab, btn) {
+  document.querySelectorAll('.main-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.main-tab-content').forEach(function(c) { c.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  var el = document.getElementById('mainTab-' + tab);
+  if(el) el.classList.add('active');
+}
+function switchStNav(page, panel, btn) {
+  var tabContent = document.getElementById('mainTab-' + page);
+  if(!tabContent) return;
+  tabContent.querySelectorAll('.stnav-btn').forEach(function(b) { b.classList.remove('active'); });
+  tabContent.querySelectorAll('.st-panel').forEach(function(p) { p.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  var el = document.getElementById(page + '-panel-' + panel);
+  if(el) el.classList.add('active');
+}
+function populateSettingsSchoolSelect() {
+  var sel = document.getElementById('settingsSchoolSelect');
+  if(!sel) return;
+  var current = sel.value;
+  sel.innerHTML = '<option value="">-- اختر كود المدرسة --</option>';
+  allSchools.forEach(function(s) {
+    var o = document.createElement('option');
+    o.value = s.school_code;
+    o.textContent = s.school_code + ' — ' + s.name;
+    sel.appendChild(o);
+  });
+  if(current) sel.value = current;
+}
+async function loadSchoolSettings() {
+  var code = document.getElementById('settingsSchoolSelect').value;
+  var content = document.getElementById('settingsContent');
+  if(!code) { content.style.display = 'none'; return; }
+  var school = allSchools.find(function(s) { return s.school_code === code; });
+  if(school) {
+    document.getElementById('settingsSchoolBadge').textContent = school.name || code;
+    document.getElementById('settingsSchoolInfo').style.display = 'block';
+  }
+  try {
+    var res = await fetch(SB_URL + '/rest/v1/custom_settings?school_code=eq.' + encodeURIComponent(code) + '&select=*', {
+      headers: { 'apikey': SB_SERVICE, 'Authorization': 'Bearer ' + SB_SERVICE }
+    });
+    var data = await res.json();
+    fillSettingsForm(data && data.length > 0 ? data[0].settings || {} : {});
+  } catch(e) { fillSettingsForm({}); }
+  content.style.display = 'block';
+}
+function fillSettingsForm(s) {
+  function setVal(id, val, def) {
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.value = (val !== undefined && val !== '') ? val : (def !== undefined ? def : el.value);
+  }
+  var adm = s.admin || {}, tch = s.teacher || {}, par = s.parent || {};
+  setVal('adm_loginBg1',adm.loginBg1,'#0D2E44'); setVal('adm_loginBg2',adm.loginBg2,'#1A5276');
+  setVal('adm_loginBtnBg',adm.loginBtnBg,'#f2f2f2'); setVal('adm_loginBtnColor',adm.loginBtnColor,'#0D2E44');
+  setVal('adm_loginIcon',adm.loginIcon,'gavel'); setVal('adm_loginTitle',adm.loginTitle,'سجل المخالفات السلوكية');
+  setVal('adm_loginSubtitle',adm.loginSubtitle,'منصة متكاملة لإدارة السلوك المدرسي');
+  setVal('adm_headerTitle',adm.headerTitle,''); setVal('adm_headerSubTitle',adm.headerSubTitle,'');
+  setVal('adm_headerSysTitle',adm.headerSysTitle,'نظام متابعة السلوك والانضباط المدرسي');
+  setVal('adm_sysTitleColor',adm.sysTitleColor,'#ffffff'); setVal('adm_sysTitleSize',adm.sysTitleSize,'14');
+  setVal('adm_sysTitleWeight',adm.sysTitleWeight,'800'); setVal('adm_sysTitleFont',adm.sysTitleFont,'IBM Plex Sans Arabic');
+  setVal('adm_headerBg1',adm.headerBg1,'#0D2E44'); setVal('adm_headerBg2',adm.headerBg2,'#1A5276');
+  setVal('adm_navCardBg',adm.navCardBg,'#ffffff'); setVal('adm_navCardBorder',adm.navCardBorder,'#D5E0EC');
+  setVal('adm_navCardText',adm.navCardText,'#0D1F2D'); setVal('adm_sectionLabelColor',adm.sectionLabelColor,'#2C4055');
+  setVal('adm_pageBg',adm.pageBg,'#F0F3F7'); setVal('adm_statCardBg',adm.statCardBg,'#ffffff');
+  setVal('adm_statCardNumColor',adm.statCardNumColor,'#0D1F2D'); setVal('adm_statCardLblColor',adm.statCardLblColor,'#2C4055');
+  setVal('adm_toolbarHomeBg',adm.toolbarHomeBg,'#ffffff'); setVal('adm_toolbarHomeText',adm.toolbarHomeText,'#0D1F2D');
+  setVal('adm_toolbarHomeBorder',adm.toolbarHomeBorder,'#D5E0EC');
+  setVal('adm_toolbarPrintBg',adm.toolbarPrintBg,'#1A5276'); setVal('adm_toolbarPrintText',adm.toolbarPrintText,'#ffffff');
+  setVal('adm_toolbarPdfBg',adm.toolbarPdfBg,'#C0392B'); setVal('adm_toolbarPdfText',adm.toolbarPdfText,'#ffffff');
+  setVal('adm_footerBg',adm.footerBg,'#0D2E44'); setVal('adm_footerText',adm.footerText,'تصميم وتنفيذ وفكرة');
+  setVal('adm_footerAuthor',adm.footerAuthor,'M E H'); setVal('adm_footerLink',adm.footerLink,'#');
+  setVal('adm_footerCopyright',adm.footerCopyright,'جميع الحقوق محفوظة');
+  setVal('adm_footerTextColor',adm.footerTextColor,'#ffffffa0'); setVal('adm_footerAuthorColor',adm.footerAuthorColor,'#C9860A');
+  setVal('tch_loginBg1',tch.loginBg1,'#0D2E44'); setVal('tch_loginBg2',tch.loginBg2,'#1A5276');
+  setVal('tch_loginBtnBg',tch.loginBtnBg,'#f2f2f2'); setVal('tch_loginBtnColor',tch.loginBtnColor,'#0D2E44');
+  setVal('tch_loginIcon',tch.loginIcon,'school'); setVal('tch_loginTitle',tch.loginTitle,'بوابة المعلم');
+  setVal('tch_loginSubtitle',tch.loginSubtitle,'أدخل رمز الدخول الخاص بك');
+  setVal('tch_headerTitle',tch.headerTitle,''); setVal('tch_headerSubTitle',tch.headerSubTitle,'');
+  setVal('tch_headerSysTitle',tch.headerSysTitle,'نظام متابعة السلوك والانضباط المدرسي');
+  setVal('tch_sysTitleColor',tch.sysTitleColor,'#ffffff'); setVal('tch_sysTitleSize',tch.sysTitleSize,'13');
+  setVal('tch_sysTitleWeight',tch.sysTitleWeight,'800'); setVal('tch_sysTitleFont',tch.sysTitleFont,'IBM Plex Sans Arabic');
+  setVal('tch_headerBg1',tch.headerBg1,'#0D2E44'); setVal('tch_headerBg2',tch.headerBg2,'#1A5276');
+  setVal('tch_navCardBg',tch.navCardBg,'#ffffff'); setVal('tch_navCardBorder',tch.navCardBorder,'#D5E0EC');
+  setVal('tch_navCardText',tch.navCardText,'#0D1F2D'); setVal('tch_sectionLabelColor',tch.sectionLabelColor,'#2C4055');
+  setVal('tch_statCardBg',tch.statCardBg,'#ffffff'); setVal('tch_statCardNumColor',tch.statCardNumColor,'#0D1F2D');
+  setVal('tch_statCardLblColor',tch.statCardLblColor,'#2C4055'); setVal('tch_pageBg',tch.pageBg,'#F0F3F7');
+  setVal('tch_toolbarHomeBg',tch.toolbarHomeBg,'#ffffff'); setVal('tch_toolbarHomeText',tch.toolbarHomeText,'#0D1F2D');
+  setVal('tch_toolbarPrintBg',tch.toolbarPrintBg,'#1A5276'); setVal('tch_toolbarPrintText',tch.toolbarPrintText,'#ffffff');
+  setVal('tch_toolbarPdfBg',tch.toolbarPdfBg,'#C0392B'); setVal('tch_toolbarPdfText',tch.toolbarPdfText,'#ffffff');
+  setVal('tch_footerBg',tch.footerBg,'#0D2E44'); setVal('tch_footerText',tch.footerText,'تصميم وتنفيذ وفكرة');
+  setVal('tch_footerAuthor',tch.footerAuthor,'M E H'); setVal('tch_footerLink',tch.footerLink,'#');
+  setVal('tch_footerCopyright',tch.footerCopyright,'جميع الحقوق محفوظة');
+  setVal('tch_footerTextColor',tch.footerTextColor,'#ffffffa0'); setVal('tch_footerAuthorColor',tch.footerAuthorColor,'#C9860A');
+  setVal('par_loginBg1',par.loginBg1,'#062E22'); setVal('par_loginBg2',par.loginBg2,'#0A5C44');
+  setVal('par_loginBtnBg',par.loginBtnBg,'#f2f2f2'); setVal('par_loginBtnColor',par.loginBtnColor,'#0A5C44');
+  setVal('par_loginIcon',par.loginIcon,'family_restroom'); setVal('par_loginTitle',par.loginTitle,'بوابة ولي الأمر');
+  setVal('par_loginSubtitle',par.loginSubtitle,'أدخل رقمك الوطني لعرض بيانات طفلك');
+  setVal('par_headerIcon',par.headerIcon,'family_restroom');
+  setVal('par_headerSysTitle',par.headerSysTitle,'نظام متابعة السلوك الانضباطي المدرسي');
+  setVal('par_sysTitleColor',par.sysTitleColor,'#ffffffa0'); setVal('par_sysTitleSize',par.sysTitleSize,'11');
+  setVal('par_sysTitleWeight',par.sysTitleWeight,'700'); setVal('par_sysTitleFont',par.sysTitleFont,'IBM Plex Sans Arabic');
+  setVal('par_headerBg1',par.headerBg1,'#062E22'); setVal('par_headerBg2',par.headerBg2,'#0A5C44');
+  setVal('par_pageBg',par.pageBg,'#F3F6F9');
+}
+function gatherSettings(page) {
+  var g = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+  if(page==='admin') return { loginBg1:g('adm_loginBg1'),loginBg2:g('adm_loginBg2'),loginBtnBg:g('adm_loginBtnBg'),loginBtnColor:g('adm_loginBtnColor'),loginIcon:g('adm_loginIcon'),loginTitle:g('adm_loginTitle'),loginSubtitle:g('adm_loginSubtitle'),headerTitle:g('adm_headerTitle'),headerSubTitle:g('adm_headerSubTitle'),headerSysTitle:g('adm_headerSysTitle'),sysTitleColor:g('adm_sysTitleColor'),sysTitleSize:g('adm_sysTitleSize'),sysTitleWeight:g('adm_sysTitleWeight'),sysTitleFont:g('adm_sysTitleFont'),headerBg1:g('adm_headerBg1'),headerBg2:g('adm_headerBg2'),navCardBg:g('adm_navCardBg'),navCardBorder:g('adm_navCardBorder'),navCardText:g('adm_navCardText'),sectionLabelColor:g('adm_sectionLabelColor'),pageBg:g('adm_pageBg'),statCardBg:g('adm_statCardBg'),statCardNumColor:g('adm_statCardNumColor'),statCardLblColor:g('adm_statCardLblColor'),toolbarHomeBg:g('adm_toolbarHomeBg'),toolbarHomeText:g('adm_toolbarHomeText'),toolbarHomeBorder:g('adm_toolbarHomeBorder'),toolbarPrintBg:g('adm_toolbarPrintBg'),toolbarPrintText:g('adm_toolbarPrintText'),toolbarPdfBg:g('adm_toolbarPdfBg'),toolbarPdfText:g('adm_toolbarPdfText'),footerBg:g('adm_footerBg'),footerText:g('adm_footerText'),footerAuthor:g('adm_footerAuthor'),footerLink:g('adm_footerLink'),footerCopyright:g('adm_footerCopyright'),footerTextColor:g('adm_footerTextColor'),footerAuthorColor:g('adm_footerAuthorColor') };
+  if(page==='teacher') return { loginBg1:g('tch_loginBg1'),loginBg2:g('tch_loginBg2'),loginBtnBg:g('tch_loginBtnBg'),loginBtnColor:g('tch_loginBtnColor'),loginIcon:g('tch_loginIcon'),loginTitle:g('tch_loginTitle'),loginSubtitle:g('tch_loginSubtitle'),headerTitle:g('tch_headerTitle'),headerSubTitle:g('tch_headerSubTitle'),headerSysTitle:g('tch_headerSysTitle'),sysTitleColor:g('tch_sysTitleColor'),sysTitleSize:g('tch_sysTitleSize'),sysTitleWeight:g('tch_sysTitleWeight'),sysTitleFont:g('tch_sysTitleFont'),headerBg1:g('tch_headerBg1'),headerBg2:g('tch_headerBg2'),navCardBg:g('tch_navCardBg'),navCardBorder:g('tch_navCardBorder'),navCardText:g('tch_navCardText'),sectionLabelColor:g('tch_sectionLabelColor'),statCardBg:g('tch_statCardBg'),statCardNumColor:g('tch_statCardNumColor'),statCardLblColor:g('tch_statCardLblColor'),pageBg:g('tch_pageBg'),toolbarHomeBg:g('tch_toolbarHomeBg'),toolbarHomeText:g('tch_toolbarHomeText'),toolbarPrintBg:g('tch_toolbarPrintBg'),toolbarPrintText:g('tch_toolbarPrintText'),toolbarPdfBg:g('tch_toolbarPdfBg'),toolbarPdfText:g('tch_toolbarPdfText'),footerBg:g('tch_footerBg'),footerText:g('tch_footerText'),footerAuthor:g('tch_footerAuthor'),footerLink:g('tch_footerLink'),footerCopyright:g('tch_footerCopyright'),footerTextColor:g('tch_footerTextColor'),footerAuthorColor:g('tch_footerAuthorColor') };
+  if(page==='parent') return { loginBg1:g('par_loginBg1'),loginBg2:g('par_loginBg2'),loginBtnBg:g('par_loginBtnBg'),loginBtnColor:g('par_loginBtnColor'),loginIcon:g('par_loginIcon'),loginTitle:g('par_loginTitle'),loginSubtitle:g('par_loginSubtitle'),headerIcon:g('par_headerIcon'),headerSysTitle:g('par_headerSysTitle'),sysTitleColor:g('par_sysTitleColor'),sysTitleSize:g('par_sysTitleSize'),sysTitleWeight:g('par_sysTitleWeight'),sysTitleFont:g('par_sysTitleFont'),headerBg1:g('par_headerBg1'),headerBg2:g('par_headerBg2'),pageBg:g('par_pageBg') };
+  return {};
+}
+async function saveSchoolSettings(page) {
+  var code = document.getElementById('settingsSchoolSelect').value;
+  if(!code) { alert('اختر مدرسة أولاً'); return; }
+  var alertEl = document.getElementById(page + 'SettingsAlert');
+  var newSettings = gatherSettings(page);
+  try {
+    var res = await fetch(SB_URL + '/rest/v1/custom_settings?school_code=eq.' + encodeURIComponent(code) + '&select=*', {
+      headers: { 'apikey': SB_SERVICE, 'Authorization': 'Bearer ' + SB_SERVICE }
+    });
+    var existing = await res.json();
+    var recordExists = existing && existing.length > 0;
+    var currentSettings = recordExists ? (existing[0].settings || {}) : {};
+    currentSettings[page] = newSettings;
+    var saveRes;
+    if(recordExists) {
+      saveRes = await fetch(SB_URL + '/rest/v1/custom_settings?school_code=eq.' + encodeURIComponent(code), {
+        method: 'PATCH',
+        headers: { 'apikey': SB_SERVICE, 'Authorization': 'Bearer ' + SB_SERVICE, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ settings: currentSettings })
+      });
+    } else {
+      saveRes = await fetch(SB_URL + '/rest/v1/custom_settings', {
+        method: 'POST',
+        headers: { 'apikey': SB_SERVICE, 'Authorization': 'Bearer ' + SB_SERVICE, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ school_code: code, settings: currentSettings })
+      });
+    }
+    if(saveRes.ok || saveRes.status === 201 || saveRes.status === 204) {
+      if(alertEl) {
+        alertEl.innerHTML = '<div class="alert alert-ok"><span class="material-icons-round">check_circle</span> تم الحفظ ✅</div>';
+        setTimeout(function() { alertEl.innerHTML = ''; }, 4000);
+      }
+    } else {
+      throw new Error('HTTP ' + saveRes.status);
+    }
+  } catch(e) {
+    if(alertEl) alertEl.innerHTML = '<div class="alert alert-err"><span class="material-icons-round">error</span> خطأ: ' + e.message + '</div>';
+  }
+}
+function resetSchoolSettings(page) {
+  var names = { admin:'صفحة الإدارة', teacher:'صفحة المعلم', parent:'بوابة ولي الأمر' };
+  if(!confirm('استعادة الإعدادات الافتراضية لـ ' + names[page] + '؟')) return;
+  fillSettingsForm({});
+  var alertEl = document.getElementById(page + 'SettingsAlert');
+  if(alertEl) {
+    alertEl.innerHTML = '<div class="alert alert-ok">تم الاستعادة — اضغط حفظ لتطبيقها</div>';
+    setTimeout(function() { alertEl.innerHTML = ''; }, 4000);
+  }
+}
+</script>
+</body>
+</html>
