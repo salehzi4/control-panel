@@ -547,6 +547,31 @@ tr.row-warn td{background:#FFFBEB;}
       <div class="form-group"><label>كود المدرسة *</label><input type="text" id="fCode" placeholder="SCH001" style="direction:ltr"></div>
       <div class="form-group"><label>اسم المدرسة *</label><input type="text" id="fName" placeholder="مدرسة الرياض"></div>
     </div>
+    <div class="form-group">
+      <label>نوع المدرسة *</label>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;border:1.5px solid var(--border);border-radius:var(--r3);flex:1;justify-content:center;font-size:13px;font-weight:700;">
+          <input type="radio" name="fGender" id="fGenderMale" value="male" checked> 👦 بنين
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;border:1.5px solid var(--border);border-radius:var(--r3);flex:1;justify-content:center;font-size:13px;font-weight:700;">
+          <input type="radio" name="fGender" id="fGenderFemale" value="female"> 👧 بنات
+        </label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>المرحلة الدراسية *</label>
+      <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 14px;border:1.5px solid var(--border);border-radius:var(--r3);flex:1;justify-content:center;font-size:12px;font-weight:700;min-width:100px;">
+          <input type="radio" name="fStage" id="fStageElem" value="elementary" checked> 🏫 ابتدائي
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 14px;border:1.5px solid var(--border);border-radius:var(--r3);flex:1;justify-content:center;font-size:12px;font-weight:700;min-width:100px;">
+          <input type="radio" name="fStage" id="fStageSec" value="secondary"> 🎓 متوسط / ثانوي
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 14px;border:1.5px solid var(--border);border-radius:var(--r3);flex:1;justify-content:center;font-size:12px;font-weight:700;min-width:100px;">
+          <input type="radio" name="fStage" id="fStageBoth" value="both"> 🏫🎓 ابتدائي + متوسط
+        </label>
+      </div>
+    </div>
     <div class="form-group"><label>كلمة مرور الإدارة *</label><input type="text" id="fAdminPass" placeholder="admin123" style="direction:ltr"></div>
     <div class="two-cols">
       <div class="form-group"><label>تاريخ البداية *</label><input type="date" id="fStart" style="direction:ltr"></div>
@@ -723,7 +748,10 @@ function renderTable() {
     html += '<tr class="' + rowClass + '">' +
       '<td style="color:var(--text-3);font-size:11px">' + (i+1) + '</td>' +
       '<td><code style="background:var(--em-pale);color:var(--em);padding:2px 7px;border-radius:5px;font-size:11px">' + s.school_code + '</code></td>' +
-      '<td><strong>' + s.name + '</strong>' + (s.notes ? '<div style="font-size:10px;color:var(--text-3);margin-top:2px">' + s.notes + '</div>' : '') + '</td>' +
+      '<td><strong>' + s.name + '</strong>' +
+      '<span style="font-size:10px;margin-right:6px">' + (s.gender === 'female' ? '👧 بنات' : '👦 بنين') + '</span>' +
+      '<span style="font-size:10px;background:var(--em-pale);color:var(--em);padding:1px 7px;border-radius:10px;">' + (s.stage === 'elementary' ? '🏫 ابتدائي' : s.stage === 'secondary' ? '🎓 متوسط/ثانوي' : '🏫🎓 ابتدائي+متوسط') + '</span>' +
+      (s.notes ? '<div style="font-size:10px;color:var(--text-3);margin-top:2px">' + s.notes + '</div>' : '') + '</td>' +
       '<td>' + (s.contact_name||'—') + (s.whatsapp ? '<div style="font-size:10px;color:var(--text-3)">' + s.whatsapp + '</div>' : '') + '</td>' +
       '<td>' + badge + '</td>' +
       '<td>' + daysPill + '</td>' +
@@ -785,6 +813,13 @@ function openEditModal(id) {
   document.getElementById('modalTitle').textContent = 'تعديل: ' + s.name;
   document.getElementById('fCode').value      = s.school_code;
   document.getElementById('fName').value      = s.name;
+  var genderVal = s.gender || 'male';
+  document.getElementById('fGenderMale').checked = genderVal === 'male';
+  document.getElementById('fGenderFemale').checked = genderVal === 'female';
+  var stageVal = s.stage || 'elementary';
+  document.getElementById('fStageElem').checked = stageVal === 'elementary';
+  document.getElementById('fStageSec').checked  = stageVal === 'secondary';
+  document.getElementById('fStageBoth').checked = stageVal === 'both';
   document.getElementById('fAdminPass').value = s.admin_password;
   document.getElementById('fStart').value     = s.start_date;
   document.getElementById('fEnd').value       = s.end_date;
@@ -807,6 +842,8 @@ async function saveSchool() {
     contact_name:   document.getElementById('fContact').value.trim() || null,
     whatsapp:       document.getElementById('fWhatsapp').value.trim() || null,
     netlify_url:    document.getElementById('fNetlifyUrl').value.trim() || window.DEFAULT_URL,
+    gender:         document.querySelector('input[name="fGender"]:checked').value,
+    stage:          document.querySelector('input[name="fStage"]:checked').value,
     status:         document.getElementById('fStatus').value,
     notes:          document.getElementById('fNotes').value.trim() || null
   };
@@ -843,11 +880,30 @@ function openDeleteModal(id, name) {
 
 async function confirmDelete() {
   if (!deletingId) return;
+  // نجد school_code من المدرسة المحذوفة
+  var school = allSchools.find(function(s){ return s.id === deletingId; });
+  var deletingCode = school ? school.school_code : null;
   showLoading(true);
+  // 1. حذف كل بيانات المدرسة من جميع الجداول
+  if (deletingCode) {
+  await sbFetch('/rest/v1/violations_log?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/positive_behaviors_log?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/messages_log?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/reports?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/report_counters?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/students?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/teachers?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/classes?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/violation_types?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/class_violation_types?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/positive_behavior_types?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  await sbFetch('/rest/v1/custom_settings?school_code=eq.' + encodeURIComponent(deletingCode), 'DELETE');
+  }
+  // 2. حذف المدرسة نفسها
   var r = await sbFetch('/rest/v1/schools?id=eq.' + deletingId, 'DELETE');
   showLoading(false);
   closeModal('deleteModal');
-  if (r.ok) { showAlert('تم حذف المدرسة 🗑️','ok'); loadSchools(); }
+  if (r.ok) { showAlert('تم حذف المدرسة وجميع بياناتها 🗑️','ok'); loadSchools(); }
   else showAlert('خطأ في الحذف','err');
   deletingId = null;
 }
